@@ -1,0 +1,48 @@
+.main{
+font-size: larger;
+font-family:Impact, 'Arial Narrow Bold', sans-serif;
+display: flex;
+background-image: url("https://i.pinimg.com/736x/c8/b0/7e/c8b07e380215edaaa1903769586a61dc.jpg");
+}
+.sectionLeftSide {
+ background-color: rgb(71, 97, 159,0.8);
+display: flex;
+flex-direction: column;
+align-items: center;
+width: 300px;
+border: red solid 2px;
+}
+.sectionRightSide{
+  width: 1100px;
+  border: green solid 2px;
+}
+.sectionAttributes{
+  display: flex;
+  align-items: center;
+  gap: 50px;
+  height: 200px;
+  border: purple solid 2px;
+}
+.sectionMainList{
+  border-radius: 10px;
+background-color: rgb(71, 97, 159,0.8);
+  height: 490px;
+  border: blue solid 2px;
+}
+
+.attibutes{
+border-radius: 10px;
+border: rgb(0, 0, 0) dotted 2px;
+width: 250px;
+height: 100px;
+background-color: rgb(71, 97, 159,0.8);
+}
+
+.item{
+  z-index: 1;
+  transition: transform 0.3s ease;
+}
+.item:hover{
+  cursor: pointer;
+  transform: scale(1.3); 
+}
