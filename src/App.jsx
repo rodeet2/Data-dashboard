@@ -1,4 +1,10 @@
 
+import getRecentBooks from "./getrecent.js";
+import { useEffect } from "react";
+
+API_KEY= We8Wqz2DTs3kxfX3JWXVIlpnpiyMh4aIHgiuGK1blASidqBshT;
+APIKEY_secret = fCTk6MaKXMugMEUHNdpY8tIobC4nlzuBRUlDLZFo;
+
 function App() {
 
   return (
@@ -42,7 +48,6 @@ function App() {
       </div>
 
     </div>
-
 
     </div>  
     </>
