@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 function App() {
 const [pets, setPets] = useState([]);
 const [token, setToken] = useState(null);
+const [searchTerm, setSearchTerm] = useState('');
 const [loading, setLoading] = useState(false);
+const [attributes, setAttributes] = useState(null);
 const [searchURL, setsearchURL] = useState("https://api.petfinder.com/v2/animals?sort=recent&limit=14")
 
 async function getRecentPets() {
@@ -29,12 +31,44 @@ async function getRecentPets() {
     const petsData = await petsResponse.json();
 setPets(petsData.animals);
 console.log(petsData);
-  setLoading(false);
+  setLoading(false);  
 }
 
 useEffect(() => { 
   getRecentPets();
 }, [searchURL]); 
+
+useEffect(() => {
+  const result = calculateAttributes(pets);
+  setAttributes(result);
+}, [pets]);
+
+
+function calculateAttributes(pets) {
+  if (!pets || pets.length === 0) return null;
+
+  const typeCount = pets.reduce((acc, pet) => {
+    acc[pet.type] = (acc[pet.type] || 0) + 1;
+    return acc;
+  }, {});
+
+  const mostCommonType = Object.keys(typeCount).reduce((a, b) =>
+    typeCount[a] > typeCount[b] ? a : b
+  );
+
+  const mostRecent = pets.reduce((latest, pet) => {
+    const date = new Date(pet.published_at);
+    return !latest || date > latest ? date : latest;
+  }, null);
+
+  const totalText = pets.length < 15 ? pets.length.toString() : "15+";
+
+  return {
+    mostCommonType,
+    mostRecent: mostRecent ? mostRecent.toLocaleString() : "N/A",
+    totalText,
+  };
+}
 
   return (
     <>
@@ -53,24 +87,32 @@ useEffect(() => {
 
       <div className="sectionAttributes">
 
-       <div className="attibutes">
-       
-       </div>
+<div className="attibutes">
+  <span>Most Recent:</span>
+  <h2>{attributes?.mostRecent || "N/A"}</h2>
+</div>
 
-        <div className="attibutes">
-       
-       </div>
+<div className="attibutes">
+    <span>Most Common type:</span>
+  <h2>{attributes?.mostCommonType || "N/A"}</h2>
+</div>
 
-       <div className="attibutes">
-       
-       </div>
+<div className="attibutes">
+      <span>Total results:</span>
+  <h2>{attributes?.totalText + '+' || "N/A"}</h2>
+</div>
 
       </div>
 
       <div className="sectionMainList">
         <div className="searchOptions">
-        <input type="text" id="myTextInput" name="myTextInput" placeholder="Find by name"></input>
-  
+<input
+  type="text"
+  placeholder="Find by name"
+  value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+/>  
+
   <div className="filterbyage">
   <label>
     <input
@@ -139,7 +181,9 @@ useEffect(() => {
       </tr>
     </thead>
     <tbody>
-      {pets.map(pet => (
+      {pets
+      .filter(pet => pet.name.toLowerCase().includes(searchTerm.toLowerCase()))
+      .map(pet => (
         <tr key={pet.id}>
           <td>{pet.name}</td>
           <td>{pet.type}</td>
@@ -158,7 +202,6 @@ useEffect(() => {
 ) : (
   <p>No pets found.</p>
 )}
-
 
   </div>
       
