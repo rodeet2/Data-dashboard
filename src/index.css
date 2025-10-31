@@ -1,8 +1,8 @@
 .main{
 font-size: larger;
-font-family:Impact, 'Arial Narrow Bold', sans-serif;
+font-family:'Segoe UI', Tahoma, Verdana, sans-serif;
 display: flex;
-background-image: url("https://i.pinimg.com/736x/c8/b0/7e/c8b07e380215edaaa1903769586a61dc.jpg");
+background-image: url("https://media.istockphoto.com/id/1445196818/photo/group-of-cute-pets-on-white-background-banner-design.jpg?s=612x612&w=0&k=20&c=TFz9WoJfr7o_9VhuUA4XM6B4BC3gQ_TmA2C8Xe372C8=");
 }
 .sectionLeftSide {
  background-color: rgb(71, 97, 159,0.8);
@@ -45,4 +45,9 @@ background-color: rgb(71, 97, 159,0.8);
 .item:hover{
   cursor: pointer;
   transform: scale(1.3); 
+}
+
+.searchOptions{
+display: flex;
+margin-bottom: 20px;
 }
