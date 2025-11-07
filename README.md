@@ -37,8 +37,7 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-https://www.loom.com/share/f4fa3b293e164d468f3c241c635119f5
-
+https://www.loom.com/share/1ee5f54da8be454c9fce8ddf0a3d91e4
 <!-- Replace this with whatever GIF tool you used! -->
 GIF created with ...  
 Loom
