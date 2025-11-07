@@ -1,4 +1,11 @@
 import { useEffect, useState } from "react"; 
+import { Routes, Route, Link } from "react-router-dom"; 
+import DetailElement from "./pages/detailelement";
+import { PetsContext } from "./PetsContext";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie } from 'recharts';
+
+
+
 
 function App() {
 const [pets, setPets] = useState([]);
@@ -7,6 +14,9 @@ const [searchTerm, setSearchTerm] = useState('');
 const [loading, setLoading] = useState(false);
 const [attributes, setAttributes] = useState(null);
 const [searchURL, setsearchURL] = useState("https://api.petfinder.com/v2/animals?sort=recent&limit=14")
+const [typeData, setTypeData] = useState([]);
+const [sizeData, setSizeData] = useState([]);
+const [ageData, setAgeData] = useState([]);
 
 async function getRecentPets() {
     setLoading(true);
@@ -19,6 +29,7 @@ async function getRecentPets() {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `grant_type=client_credentials&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}`
     });
+
     const tokenData = await tokenResponse.json();
     const accessToken = tokenData.access_token;
 
@@ -28,20 +39,55 @@ async function getRecentPets() {
             'Content-Type': 'application/json'
         }
     });
-    const petsData = await petsResponse.json();
+
+const petsData = await petsResponse.json();
 setPets(petsData.animals);
-console.log(petsData);
-  setLoading(false);  
+console.log(petsData.animals);
+setLoading(false);
+
 }
 
-useEffect(() => { 
+useEffect(() => {
   getRecentPets();
 }, [searchURL]); 
 
 useEffect(() => {
   const result = calculateAttributes(pets);
   setAttributes(result);
+  const chartData = getPetCounts(pets);
+  setTypeData(chartData.typeCounts);
+  setSizeData(chartData.sizeCounts);
+  setAgeData(chartData.ageCounts);
 }, [pets]);
+
+const getPetCounts = (pets) => {
+  if (pets.length === 0) {
+    return { typeCounts: [], ageCounts: [], sizeCounts: [] };
+  }
+
+  const tallyAttribute = (key) => {
+    const counts = pets.reduce((acc, pet) => {
+      // Use fallback value if the key is missing or null
+      const value = pet[key] || 'Unknown';
+      acc[value] = (acc[value] || 0) + 1;
+      return acc;
+    }, {});
+
+    // Convert the tally object into the desired array format: [{ name: 'X', count: Y }]
+    return Object.keys(counts).map(name => ({
+      name,
+      count: counts[name],
+    }));
+  };
+
+  const typeCounts = tallyAttribute('type');
+  const ageCounts = tallyAttribute('age');
+  const sizeCounts = tallyAttribute('size');
+  console.log('Type:', typeCounts);
+  console.log('Age :', ageCounts);
+  console.log('Size :', sizeCounts);
+  return { typeCounts, ageCounts, sizeCounts };
+};
 
 
 function calculateAttributes(pets) {
@@ -71,6 +117,9 @@ function calculateAttributes(pets) {
 }
 
   return (
+
+  <PetsContext.Provider value={{ pets }}>
+
     <>
     <div className="main">
 
@@ -82,36 +131,38 @@ function calculateAttributes(pets) {
       <span className="item">About</span>
 
     </div>
-
-    <div className="sectionRightSide">
+<Routes>
+<Route path="/" element={
+  <div className="sectionRightSide">
 
       <div className="sectionAttributes">
 
-<div className="attibutes">
+ <div className="attibutes">
   <span>Most Recent:</span>
   <h2>{attributes?.mostRecent || "N/A"}</h2>
-</div>
+ </div>
 
-<div className="attibutes">
+ <div className="attibutes">
     <span>Most Common type:</span>
   <h2>{attributes?.mostCommonType || "N/A"}</h2>
-</div>
+ </div>
 
-<div className="attibutes">
+ <div className="attibutes">
       <span>Total results:</span>
   <h2>{attributes?.totalText + '+' || "N/A"}</h2>
-</div>
+ </div>
 
       </div>
+<div className="sectionDivider_mainlist_moreAnalysis" >
 
-      <div className="sectionMainList">
+    <div className="sectionMainList">
         <div className="searchOptions">
-<input
+ <input
   type="text"
   placeholder="Find by name"
   value={searchTerm}
   onChange={(e) => setSearchTerm(e.target.value)}
-/>  
+  />  
 
   <div className="filterbyage">
   <label>
@@ -161,14 +212,15 @@ function calculateAttributes(pets) {
     />{" "}
     Old
   </label>
-</div>
+
+ </div>
 
 
         </div>
 
-{loading ? (
+ {loading ? (
   <p>Updating pets...</p>
-) : pets.length > 0 ? (
+ ) : pets.length > 0 ? (
   <table style={{ width: '100%', marginLeft: '20px' }}>
     <thead>
       <tr>
@@ -191,25 +243,68 @@ function calculateAttributes(pets) {
           <td>{pet.size}</td>
           <td>{pet.status}</td>
           <td>
-            <button onClick={() => window.open(pet.url, '_blank')}>
-              Learn More
-            </button>
+    <Link 
+          to={`/detail/${pet.id}`}
+          state={{ pet }} 
+        >
+          Learn More
+        </Link>
           </td>
         </tr>
       ))}
     </tbody>
   </table>
-) : (
+ ) : (
   <p>No pets found.</p>
-)}
+ )}
+</div>
+<div className="moreAnalysis">
+ <ResponsiveContainer width="300" height={200}>
+<BarChart data={typeData}>
+  <XAxis dataKey="name" stroke="#000" />   
+  <YAxis stroke="#000" />                 
+  <Tooltip 
+    contentStyle={{ color: '#000' }}     
+  />
+  <Bar dataKey="count" fill="#8884d8" />
+</BarChart>
 
-  </div>
-      
-    </div>
+<PieChart width={300} height={300} style={{ marginTop: '50px' }}>
+<Pie
+  data={ageData}
+  dataKey="count"
+  nameKey="name"
+  cx="50%"
+  cy="50%"
+  outerRadius={65}
+  fill="#8884d8"
+  label={{ fill: "#000" }}   
+/>
+<Tooltip 
+  contentStyle={{ color: "#000" }}  
+/>
+</PieChart>
 
-    </div>  
-    </>
+
+</ResponsiveContainer>
+</div>
+</div>
+</div>
+} 
+/>
+
+<Route path ="/detail/:idpet" element={ <DetailElement /> } />
+
+</Routes>
+
+    </div> 
+
+
+  </>
+
+</PetsContext.Provider>
+
+
   )
 }
-
 export default App
